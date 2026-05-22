@@ -1,0 +1,161 @@
+---
+title: "Penguins Statistical Analysis and Linear Regression Modeling"
+format: html
+---
+
+# Project Overview
+## PACE
+## Plan- 
+- Explore the structure and distribution of penguin measurements
+- Identify relationships among numerical features
+- Build a simple linear regression model
+- Evaluate regression assumptions
+## Dataset Acquisition and Initial Exploration
+```{python}
+import pandas as pd
+import seaborn as sns
+data=sns.load_dataset("penguins")
+data.head(15)
+```
+
+## Data Filtering: Retaining Adelie and Gentoo Penguins and Handling Missing Values
+```{python}
+import pandas as pd
+data=pd.read_csv("C:/Users/Udith P Kidiyoor/Downloads/penguins.csv")
+data.head(15)
+```
+
+
+```{python}
+# data.to_csv(r"C:\Users\Udith P Kidiyoor\Downloads\penguins.csv", index=False)
+```
+## Analyse - EDA
+## Data Preparation and Cleaning
+```{python}
+data.info()
+```
+
+```{python}
+data.shape
+```
+
+```{python}
+data.describe()
+```
+## Missing Value Handling and Dataset Filtering
+```{python}
+data.isna().sum()
+```
+
+```{python}
+mask=data.isna()
+mask=mask.any(axis=1)
+nulls=data[mask]
+nulls
+```
+
+```{python}
+data=data.dropna()
+```
+## Exploratory Data Analysis (EDA)
+```{python}
+import matplotlib.pyplot as plt
+import seaborn as sns
+q1=data["species"].value_counts()
+sns.barplot(q1)
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+print(q1)
+```
+
+```{python}
+data=data[(data["species"]=="Adelie") | (data["species"]=="Gentoo")]
+```
+### Distribution Analysis of Numerical Variables
+```{python}
+numerical_features=[]
+
+for column, typ in data.dtypes.items():
+    if typ=="float64":
+        numerical_features.append(column)
+numerical_features
+```
+
+```{python}
+import matplotlib.pyplot as plt
+import seaborn as sns
+for i,column in enumerate(numerical_features):
+    plt.subplot(2,2,i+1)
+    sns.histplot(data[column], color="pink", kde=True)
+    plt.grid(True)
+plt.tight_layout()
+plt.show()
+```
+### Feature Relationship Analysis
+```{python}
+sns.pairplot(data, hue="species")
+plt.show()
+```
+
+```{python}
+sns.pairplot(data)
+plt.show()
+```
+### Observations
+From the scatterplot matrix, you can observe a few linear relationships:
+* bill length (mm) and flipper length (mm)
+* bill length (mm) and body mass (g)
+* flipper length (mm) and body mass (g)
+
+## Linear Regression Modeling
+```{python}
+from statsmodels.formula.api import ols
+model=ols("body_mass_g ~ bill_length_mm", data=data)
+model=model.fit()
+```
+### Model Summary and Statistical Results
+```{python}
+print(model.summary())
+```
+### Regression Visualization
+```{python}
+sns.regplot(x="bill_length_mm", y="body_mass_g", data=data)
+plt.show()
+```
+## Regression Assumption Diagnostics 
+### Residual Distribution Analysis -Normality
+```{python}
+sns.histplot(data=model.resid, kde=True)
+plt.title("Histogram of residuals")
+plt.show()
+```
+### Normality Assessment Using Q–Q Plot
+```{python}
+import statsmodels.api as sm
+sm.qqplot(model.resid, line="s")
+plt.show()
+```
+### Residuals vs Fitted Values Analysis
+```{python}
+sns.scatterplot(x=model.fittedvalues, y=model.resid)
+plt.axhline()
+plt.show()
+```
+## Conclusion
+## Conclusion
+
+A simple linear regression model was developed to evaluate the relationship between **bill length (mm)** and **body mass (g)** for Adelie and Gentoo penguins.
+
+The model produced an **R² value of 0.769**, indicating that approximately **76.9% of the variation in penguin body mass can be explained by bill length alone**. This suggests a strong linear relationship between the two variables.
+
+The regression coefficient for **bill length (141.19)** indicates that, on average, **for every 1 mm increase in bill length, body mass is predicted to increase by approximately 141 grams**.
+
+The predictor was found to be **statistically significant** (**p < 0.001**), providing evidence that bill length contributes meaningfully to predicting body mass.
+
+Residual diagnostics further suggest that the regression assumptions are reasonably satisfied:
+- Residuals appear approximately normally distributed
+- No major systematic patterns were observed
+- The model demonstrates acceptable fit for simple linear regression
+
+Overall, the analysis indicates that **bill length is a strong predictor of penguin body mass within the selected species group.**
